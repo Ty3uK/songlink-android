@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subtitle">неофициальный клиент</string>
+    <string name="donation" translatable="false">Поддержать</string>
+    <string name="alert_success">Успешно!</string>
+    <string name="alert_error">Ошибка!</string>
+    <string name="alert_info">Информация</string>
+    <string name="alert_success_message">Спасибо за Ваше пожертвование!</string>
+    <string name="alert_info_message">Спасибо, Вы уже поддержали проект!</string>
+    <string name="alert_error_message">Произошла ошибка! Пожалуйста, попробуйте немного позже.</string>
+    <string name="alert_got_it">Понятно</string>
+    <string name="share_action_open">Открыть</string>
+    <string name="share_action_copy">Скопировать</string>
+    <string name="share_action_share">Поделиться</string>
+    <string name="share_action_back">Назад</string>
+    <string name="share_action_cancel">Отменить</string>
+    <string name="share_title">Целевой музыкальный сервис</string>
+</resources>

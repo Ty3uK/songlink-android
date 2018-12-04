@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name" translatable="false">Songlink</string>
+    <string name="title" translatable="false">song.link</string>
+    <string name="subtitle">unofficial client application</string>
+    <string name="github" translatable="false">Github</string>
+    <string name="telegram" translatable="false">Telegram</string>
+    <string name="donation">Donation</string>
+    <string name="alert_success">Success!</string>
+    <string name="alert_error">Error!</string>
+    <string name="alert_info">Information</string>
+    <string name="alert_success_message">Thank you for your donation!</string>
+    <string name="alert_info_message">Donation already purchased. Thank you!</string>
+    <string name="alert_error_message">An error occurred in donation process. Please, try again later.</string>
+    <string name="alert_got_it">Got it</string>
+    <string name="share_action_open">Open</string>
+    <string name="share_action_copy">Copy</string>
+    <string name="share_action_share">Share</string>
+    <string name="share_action_back">Back</string>
+    <string name="share_action_cancel">Cancel</string>
+    <string name="share_title">Select target music service</string>
+</resources>
