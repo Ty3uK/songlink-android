@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="#features">Features</a> •
-  <a href="#external_libraries">External libraries</a> •
+  <a href="#external-libraries">External libraries</a> •
   <a href="#license">License</a>
 </p>
 
