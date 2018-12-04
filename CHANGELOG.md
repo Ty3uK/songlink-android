@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="1.2"></a>
+## [1.2](https://github.com/Ty3uK/songlink-android/compare/v1.1...v1.2) (2018-12-04)
+
+### Bug Fixes
+
+* Crashes and playlists sharing ([8306be8](https://github.com/Ty3uK/songlink-android/commit/8306be8))
+
 <a name="1.1"></a>
 ## 1.1 (2018-12-04)
 
