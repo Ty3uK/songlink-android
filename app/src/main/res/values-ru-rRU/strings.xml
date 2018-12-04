@@ -15,4 +15,5 @@
     <string name="share_action_back">Назад</string>
     <string name="share_action_cancel">Отменить</string>
     <string name="share_title">Целевой музыкальный сервис</string>
+    <string name="alert_invalid_url">Неподдерживаемый URL</string>
 </resources>

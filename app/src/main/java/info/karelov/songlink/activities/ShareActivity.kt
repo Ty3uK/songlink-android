@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Patterns
 import info.karelov.songlink.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -46,34 +47,53 @@ class ShareActivity : Activity() {
             return
         }
 
-        this.disposable =
-            wrapLoadWithBack(url)
-            .subscribe {
-                when (it.first) {
-                    ACTIONS.OPEN -> {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.second.url))
-                        startActivity(intent)
-                    }
-                    ACTIONS.COPY -> {
-                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("song.link", it.second.url)
-                        clipboard.primaryClip = clip
-                    }
-                    ACTIONS.SHARE -> {
-                        val intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, it.second.url)
-                            type = "text/plain"
-                        }
-                        startActivity(intent)
-                    }
-                    ACTIONS.BACK -> back.onNext(Unit)
-                }
+        var targetUrl = ""
+        val urlParts = url.split(' ')
 
-                if (it.first !== ACTIONS.BACK) {
-                    finish()
-                }
+        for (item in urlParts) {
+            if (Patterns.WEB_URL.matcher(item).matches()) {
+                targetUrl = item
+                break
             }
+        }
+
+        if (targetUrl.isEmpty()) {
+            showErrorAlert(getString(R.string.alert_invalid_url))
+            return
+        }
+
+        this.disposable =
+            wrapLoadWithBack(targetUrl)
+            .subscribe(
+                {
+                    when (it.first) {
+                        ACTIONS.OPEN -> {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.second.url))
+                            startActivity(intent)
+                        }
+                        ACTIONS.COPY -> {
+                            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("song.link", it.second.url)
+                            clipboard.primaryClip = clip
+                        }
+                        ACTIONS.SHARE -> {
+                            val intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, it.second.url)
+                                type = "text/plain"
+                            }
+                            startActivity(intent)
+                        }
+                        ACTIONS.BACK -> back.onNext(Unit)
+                    }
+
+                    if (it.first !== ACTIONS.BACK) {
+                        finish()
+                    }
+                },
+                { error -> showErrorAlert(error.message ?: "") },
+                { finish() }
+            )
 
         back.onNext(Unit)
     }
@@ -83,14 +103,8 @@ class ShareActivity : Activity() {
             this.songLink.load(url)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .switchMap { providers ->
-                    showProviderSelectDialog(
-                        providers,
-                        this@ShareActivity
-                    )
-                }
+                .switchMap { providers -> showProviderSelectDialog(providers, this@ShareActivity) }
                 .switchMap { provider -> showActionSelectDialog(provider, this@ShareActivity) }
-                .doOnError { error -> showErrorAlert(error.message ?: "") }
                 .doOnComplete { finish() }
         }
     }
@@ -100,7 +114,7 @@ class ShareActivity : Activity() {
 
         alert.setTitle(message)
         alert.setCancelable(false)
-        alert.setNegativeButton("Got it") { _, _ -> finish() }
+        alert.setNegativeButton(getString(R.string.alert_got_it)) { _, _ -> finish() }
         alert.show()
     }
 
