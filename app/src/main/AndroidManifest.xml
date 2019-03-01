@@ -15,7 +15,8 @@
         <activity
                 android:name=".activities.ShareActivity"
                 android:noHistory="true"
-                android:theme="@style/Theme.Transparent">
+                android:theme="@style/Theme.Transparent"
+                android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
 

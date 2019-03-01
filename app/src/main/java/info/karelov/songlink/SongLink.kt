@@ -3,22 +3,23 @@ package info.karelov.songlink
 import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import com.google.gson.annotations.Expose
 import io.reactivex.Observable
 
 const val BASE_URL = "https://song.link/"
-const val INITIAL_STATE_REGEXP = "<script id=\"initialState\".+>(.+)</script>"
+const val INITIAL_STATE_REGEXP = """<script id="initialState".+>\s+?(.+)\s+?</script>"""
 val SERVICES = arrayOf(
-    SLProvider("yandex", "Yandex Music"),
-    SLProvider("google", "Google Music"),
-    SLProvider("appleMusic", "Apple Music"),
-    SLProvider("spotify", "Spotify"),
-    SLProvider("youtube", "Youtube"),
-    SLProvider("youtubeMusic", "Youtube Music"),
-    SLProvider("deezer", "Deezer"),
-    SLProvider("pandora", "Pandora"),
-    SLProvider("soundcloud", "SoundCloud"),
-    SLProvider("tidal", "Tidal"),
-    SLProvider("songlink", "song.link")
+    SLProvider("YANDEX_SONG", "Yandex Music"),
+    SLProvider("GOOGLE_SONG", "Google Music"),
+    SLProvider("ITUNES_SONG", "Apple Music"),
+    SLProvider("SPOTIFY_SONG", "Spotify"),
+    SLProvider("YOUTUBE_VIDEO", "Youtube"),
+    SLProvider("YOUTUBE_SONG", "Youtube Music"),
+    SLProvider("DEEZER_SONG", "Deezer"),
+    SLProvider("PANDORA_SONG", "Pandora"),
+    SLProvider("SOUNDCLOUD_SONG", "SoundCloud"),
+    SLProvider("TIDAL_SONG", "Tidal"),
+    SLProvider("SONGLINK", "song.link")
 )
 
 data class SL(
@@ -33,11 +34,9 @@ data class SLResponse(
 data class SLData(
     val title: String,
     val artistName: String,
-    val links: SLLinks
-)
-
-data class SLLinks(
-    val listen: MutableList<SLLink>
+    @Expose(serialize = false, deserialize = false)
+    val links: MutableList<SLLink>,
+    val nodesByUniqueId: Map<String, Map<String, Any>>
 )
 
 data class SLLink(
@@ -65,6 +64,7 @@ class SongLink {
             .map { this.url = it.url; it }
             .flatMap { this.extractData(it.data) }
             .flatMap { this.parseJson(it) }
+            .flatMap { this.fillLinks(it) }
             .flatMap { this.getProviders(it) }
             .map { this.providers = it; it }
     }
@@ -75,6 +75,27 @@ class SongLink {
         } catch (error: JsonSyntaxException) {
             throw Error("Error: Couldn't decode data into SL")
         }
+    }
+
+    private fun fillLinks(data: SL): Observable<SL> {
+        val links = mutableListOf<SLLink>()
+
+        data.songlink.nodesByUniqueId.entries
+            .forEach {
+                if (!it.value.containsKey("entity")) {
+                    return@forEach
+                }
+
+                val entity = it.value["entity"] as String? ?: ""
+
+                links.add(SLLink(
+                    name = entity,
+                    provider = entity.replace("_SONG", "").replace("_VIDEO", ""),
+                    url = it.value["listenUrl"] as String? ?: ""
+                ))
+            }
+
+        return Observable.just(data.copy(songlink = data.songlink.copy(links = links)))
     }
 
     private fun requestData(url: String): Observable<SLResponse> {
@@ -114,7 +135,7 @@ class SongLink {
         val services = mutableListOf<SLProvider>()
 
         SERVICES.forEach { provider ->
-            val remoteProvider = data.songlink.links.listen.find { link -> link.name == provider.name }
+            val remoteProvider = data.songlink.links.find { link -> link.name == provider.name }
 
             if (remoteProvider != null) {
                 val newProvider = provider.copy(url = remoteProvider.url)

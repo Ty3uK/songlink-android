@@ -112,7 +112,8 @@ class ShareActivity : Activity() {
     private fun showErrorAlert(message: String) {
         val alert = AlertDialog.Builder(this@ShareActivity)
 
-        alert.setTitle(message)
+        alert.setTitle(R.string.alert_error)
+        alert.setMessage(message)
         alert.setCancelable(false)
         alert.setNegativeButton(getString(R.string.alert_got_it)) { _, _ -> finish() }
         alert.show()
