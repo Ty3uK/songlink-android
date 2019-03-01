@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="1.3"></a>
+## [1.3](https://github.com/Ty3uK/songlink-android/compare/v1.2...v1.3) (2019-03-01)
+
+### Features
+
+* Now support new song.link data format ([a91311c](https://github.com/Ty3uK/songlink-android/commit/a91311c))
+
+### Bug Fixes
+
+* App crash when showing alert ([a91311c](https://github.com/Ty3uK/songlink-android/commit/a91311c))
+* Lock ShareActivity in portrait orientation ([a91311c](https://github.com/Ty3uK/songlink-android/commit/a91311c))
+
 <a name="1.2"></a>
 ## [1.2](https://github.com/Ty3uK/songlink-android/compare/v1.1...v1.2) (2018-12-04)
 
