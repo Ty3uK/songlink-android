@@ -87,12 +87,25 @@ class SongLink {
                 }
 
                 val entity = it.value["entity"] as String? ?: ""
+                val provider = entity
+                    .replace("_SONG", "")
+                    .replace("_VIDEO", "")
+                val listenUrl = it.value["listenUrl"] as String? ?: ""
+                val listenAppUrl = it.value["listenAppUrl"] as String? ?: ""
 
                 links.add(SLLink(
                     name = entity,
-                    provider = entity.replace("_SONG", "").replace("_VIDEO", ""),
-                    url = it.value["listenUrl"] as String? ?: ""
+                    provider = provider,
+                    url = listenUrl
                 ))
+
+                if (provider == "YOUTUBE" && listenAppUrl.isNotEmpty()) {
+                    links.add(SLLink(
+                        name = "YOUTUBE_SONG",
+                        provider = "YOUTUBE",
+                        url = listenAppUrl
+                    ))
+                }
             }
 
         return Observable.just(data.copy(songlink = data.songlink.copy(links = links)))
