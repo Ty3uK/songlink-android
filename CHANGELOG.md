@@ -1,14 +1,14 @@
 # Change Log
 
 <a name="1.3.1"></a>
-## [1.3.1](https://github.com/Ty3uK/songlink-android/compare/v1.3...v1.3.1) (2019-03-05)
+## [1.3.1](https://github.com/Ty3uK/songlink-android/compare/1.3...1.3.1) (2019-03-05)
 
 ### Bug Fixes
 
 * Return missing youtube music link ([cdcccae](https://github.com/Ty3uK/songlink-android/commit/cdcccae))
 
 <a name="1.3"></a>
-## [1.3](https://github.com/Ty3uK/songlink-android/compare/v1.2...v1.3) (2019-03-01)
+## [1.3](https://github.com/Ty3uK/songlink-android/compare/1.2...1.3) (2019-03-01)
 
 ### Features
 
@@ -20,7 +20,7 @@
 * Lock ShareActivity in portrait orientation ([a91311c](https://github.com/Ty3uK/songlink-android/commit/a91311c))
 
 <a name="1.2"></a>
-## [1.2](https://github.com/Ty3uK/songlink-android/compare/v1.1...v1.2) (2018-12-04)
+## [1.2](https://github.com/Ty3uK/songlink-android/compare/1.1...1.2) (2018-12-04)
 
 ### Bug Fixes
 
