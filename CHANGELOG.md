@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="1.4"></a>
+## [1.4](https://github.com/Ty3uK/songlink-android/compare/v1.3.1...v1.4) (2019-11-02)
+
+### Features
+
+* Now support new song.link public api ([932d1ca](https://github.com/Ty3uK/songlink-android/commit/932d1ca))
+
 <a name="1.3.1"></a>
 ## [1.3.1](https://github.com/Ty3uK/songlink-android/compare/v1.3...v1.3.1) (2019-03-05)
 
