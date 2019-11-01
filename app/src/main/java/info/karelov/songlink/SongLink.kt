@@ -1,119 +1,63 @@
 package info.karelov.songlink
 
+import android.net.Uri
 import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.google.gson.annotations.Expose
 import io.reactivex.Observable
 
-const val BASE_URL = "https://song.link/"
-const val INITIAL_STATE_REGEXP = """<script id="initialState".+>\s+?(.+)\s+?</script>"""
-val SERVICES = arrayOf(
-    SLProvider("YANDEX_SONG", "Yandex Music"),
-    SLProvider("GOOGLE_SONG", "Google Music"),
-    SLProvider("ITUNES_SONG", "Apple Music"),
-    SLProvider("SPOTIFY_SONG", "Spotify"),
-    SLProvider("YOUTUBE_VIDEO", "Youtube"),
-    SLProvider("YOUTUBE_SONG", "Youtube Music"),
-    SLProvider("DEEZER_SONG", "Deezer"),
-    SLProvider("PANDORA_SONG", "Pandora"),
-    SLProvider("SOUNDCLOUD_SONG", "SoundCloud"),
-    SLProvider("TIDAL_SONG", "Tidal"),
-    SLProvider("SONGLINK", "song.link")
+data class Response(
+    val pageUrl: String,
+    val linksByPlatform: Map<String, Link>
 )
 
-data class SL(
-    val songlink: SLData
-)
-
-data class SLResponse(
-    val url: String,
-    val data: String
-)
-
-data class SLData(
-    val title: String,
-    val artistName: String,
-    @Expose(serialize = false, deserialize = false)
-    val links: MutableList<SLLink>,
-    val nodesByUniqueId: Map<String, Map<String, Any>>
-)
-
-data class SLLink(
-    val name: String,
-    val provider: String,
+data class Link(
     val url: String
 )
 
-data class SLProvider(
+data class Provider(
     val name: String,
     val label: String,
     val url: String = ""
 )
 
 class SongLink {
-    private lateinit var url: String
-    private lateinit var providers: List<SLProvider>
+    private lateinit var providers: List<Provider>
 
-    fun load(url: String): Observable<List<SLProvider>> {
+    fun load(url: String): Observable<List<Provider>> {
         if (::providers.isInitialized) {
             return Observable.just(providers)
         }
 
         return this.requestData(url)
-            .map { this.url = it.url; it }
-            .flatMap { this.extractData(it.data) }
             .flatMap { this.parseJson(it) }
-            .flatMap { this.fillLinks(it) }
             .flatMap { this.getProviders(it) }
             .map { this.providers = it; it }
     }
 
-    private fun parseJson(data: String): Observable<SL> {
+    private fun parseJson(data: String): Observable<Response> {
         try {
-            return Observable.just(Gson().fromJson(data, SL::class.java))
+            return Observable.just(Gson().fromJson(data, Response::class.java))
         } catch (error: JsonSyntaxException) {
             throw Error("Error: Couldn't decode data into SL")
         }
     }
 
-    private fun fillLinks(data: SL): Observable<SL> {
-        val links = mutableListOf<SLLink>()
+    private fun requestData(url: String): Observable<String> {
+        val builder = Uri.Builder()
 
-        data.songlink.nodesByUniqueId.entries
-            .forEach {
-                if (!it.value.containsKey("entity")) {
-                    return@forEach
-                }
+        builder
+            .scheme("https")
+            .authority("api.song.link")
+            .appendPath("v1-alpha.1")
+            .appendPath("links")
+            .appendQueryParameter("key", "71d7be8a-3a76-459b-b21e-8f0350374984")
+            .appendQueryParameter("url", url)
 
-                val entity = it.value["entity"] as String? ?: ""
-                val provider = entity
-                    .replace("_SONG", "")
-                    .replace("_VIDEO", "")
-                val listenUrl = it.value["listenUrl"] as String? ?: ""
-                val listenAppUrl = it.value["listenAppUrl"] as String? ?: ""
+        val targetUrl = builder.build().toString()
 
-                links.add(SLLink(
-                    name = entity,
-                    provider = provider,
-                    url = listenUrl
-                ))
-
-                if (provider == "YOUTUBE" && listenAppUrl.isNotEmpty()) {
-                    links.add(SLLink(
-                        name = "YOUTUBE_SONG",
-                        provider = "YOUTUBE",
-                        url = listenAppUrl
-                    ))
-                }
-            }
-
-        return Observable.just(data.copy(songlink = data.songlink.copy(links = links)))
-    }
-
-    private fun requestData(url: String): Observable<SLResponse> {
         return Observable.create { emitter ->
-            Fuel.get(BASE_URL + url).responseString { _, response, result ->
+            Fuel.get(targetUrl).responseString { _, response, result ->
                 val (data, error) = result
 
                 if (error != null) {
@@ -125,7 +69,7 @@ class SongLink {
                 } else if (data == null) {
                     emitter.onError(Error("No data returned from server"))
                 } else {
-                    emitter.onNext(SLResponse(response.url.toString(), data))
+                    emitter.onNext(data)
                 }
 
                 emitter.onComplete()
@@ -133,31 +77,35 @@ class SongLink {
         }
     }
 
-    private fun extractData(html: String): Observable<String> {
-        val regex = Regex(INITIAL_STATE_REGEXP)
-        val initialState = regex.find(html)
+    private fun getProviders(response: Response): Observable<List<Provider>> {
+        val providers = mutableListOf<Provider>()
+        val format = String.format(
+            "%s|%s|%s",
+            "(?<=[A-Z])(?=[A-Z][a-z])",
+            "(?<=[^A-Z])(?=[A-Z])",
+            "(?<=[A-Za-z])(?=[^A-Za-z])"
+        )
 
-        if (initialState == null || initialState.groups.size < 2 || initialState.groups[1]!!.value.isEmpty()) {
-            throw Error("Cannot find initialState field")
+        for ((name, link) in response.linksByPlatform.entries) {
+            providers.add(
+                Provider(
+                    name,
+                    name
+                        .capitalize()
+                        .replace(format.toRegex(), " "),
+                    link.url
+                )
+            )
         }
 
-        return Observable.just(initialState.groups[1]!!.value)
-    }
+        providers.add(
+            Provider(
+                "song.link",
+                "song.link",
+                response.pageUrl
+            )
+        )
 
-    private fun getProviders(data: SL): Observable<List<SLProvider>> {
-        val services = mutableListOf<SLProvider>()
-
-        SERVICES.forEach { provider ->
-            val remoteProvider = data.songlink.links.find { link -> link.name == provider.name }
-
-            if (remoteProvider != null) {
-                val newProvider = provider.copy(url = remoteProvider.url)
-                services.add(newProvider)
-            }
-        }
-
-        services.add(SERVICES.last().copy(url = this.url))
-
-        return Observable.just(services.toList())
+        return Observable.just(providers)
     }
 }

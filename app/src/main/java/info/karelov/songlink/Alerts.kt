@@ -12,7 +12,7 @@ enum class ACTIONS {
     BACK
 }
 
-fun showProviderSelectDialog(providers: List<SLProvider>, context: Context): Observable<SLProvider> {
+fun showProviderSelectDialog(providers: List<Provider>, context: Context): Observable<Provider> {
     return Observable.create { emitter ->
         val alert = AlertDialog.Builder(context)
 
@@ -33,7 +33,7 @@ fun showProviderSelectDialog(providers: List<SLProvider>, context: Context): Obs
     }
 }
 
-fun showActionSelectDialog(provider: SLProvider, context: Context): Observable<Pair<ACTIONS, SLProvider>> {
+fun showActionSelectDialog(provider: Provider, context: Context): Observable<Pair<ACTIONS, Provider>> {
     return Observable.create { emitter ->
         val alert = AlertDialog.Builder(context)
         val items = arrayOf(

@@ -74,7 +74,7 @@ class ShareActivity : Activity() {
                         ACTIONS.COPY -> {
                             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("song.link", it.second.url)
-                            clipboard.primaryClip = clip
+                            clipboard.setPrimaryClip(clip)
                         }
                         ACTIONS.SHARE -> {
                             val intent = Intent().apply {
@@ -98,7 +98,7 @@ class ShareActivity : Activity() {
         back.onNext(Unit)
     }
 
-    private fun wrapLoadWithBack(url: String): Observable<Pair<ACTIONS, SLProvider>> {
+    private fun wrapLoadWithBack(url: String): Observable<Pair<ACTIONS, Provider>> {
         return back.switchMap {
             this.songLink.load(url)
                 .subscribeOn(Schedulers.io())
