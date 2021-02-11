@@ -48,7 +48,7 @@ class ShareActivity : Activity() {
         }
 
         var targetUrl = ""
-        val urlParts = url.split(' ')
+        val urlParts = url.split(' ', '\n')
 
         for (item in urlParts) {
             if (Patterns.WEB_URL.matcher(item).matches()) {
