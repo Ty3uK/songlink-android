@@ -10,8 +10,8 @@ android {
         applicationId "info.karelov.songlink"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 7
-        versionName "1.4.0"
+        versionCode 9
+        versionName "1.5.0"
     }
     buildTypes {
         release {
