@@ -39,8 +39,8 @@ class MainActivity : Activity(), PurchasesUpdatedListener {
 
         billingClient = BillingClient.newBuilder(this).setListener(this).build()
         billingClient.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(responseCode: Int) {
-                if (responseCode == BillingClient.BillingResponse.OK) {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     println("BILLING RESPONSE: OK")
                 }
 
@@ -52,12 +52,14 @@ class MainActivity : Activity(), PurchasesUpdatedListener {
         })
     }
 
-    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        if (responseCode == BillingClient.BillingResponse.OK && purchases != null) {
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
+        val responseCode = billingResult.responseCode
+
+        if (responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             showAlert(getString(R.string.alert_success), getString(R.string.alert_success_message), false)
-        } else if (responseCode == BillingClient.BillingResponse.ITEM_ALREADY_OWNED) {
+        } else if (responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
             showAlert(getString(R.string.alert_info), getString(R.string.alert_info_message), false)
-        } else if (responseCode != BillingClient.BillingResponse.USER_CANCELED) {
+        } else if (responseCode != BillingClient.BillingResponseCode.USER_CANCELED) {
             showAlert(getString(R.string.alert_error), getString(R.string.alert_error_message), true)
         }
     }
@@ -84,10 +86,8 @@ class MainActivity : Activity(), PurchasesUpdatedListener {
             .setSkusList(arrayListOf("standard_donation"))
             .setType(BillingClient.SkuType.INAPP)
 
-        billingClient.querySkuDetailsAsync(params.build()) { responseCode, skuDetailsList ->
-            println("querySku: $responseCode, $skuDetailsList")
-
-            if (responseCode != BillingClient.BillingResponse.OK || skuDetailsList.size != 1) {
+        billingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
+            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK || skuDetailsList?.size != 1) {
                 return@querySkuDetailsAsync
             }
 
