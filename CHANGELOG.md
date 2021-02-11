@@ -1,5 +1,16 @@
 # Change Log
 
+<a name="1.5"></a>
+## [1.5](https://github.com/Ty3uK/songlink-android/compare/v1.4...v1.50) (2021-11-02)
+
+### Bug Fixes
+
+* Sharing from Spotify ([ef13977](https://github.com/Ty3uK/songlink-android/commit/ef13977))
+
+### Features
+
+* Update billing library ([8d4889a](https://github.com/Ty3uK/songlink-android/commit/8d4889a))
+
 <a name="1.4"></a>
 ## [1.4](https://github.com/Ty3uK/songlink-android/compare/v1.3.1...v1.4) (2019-11-02)
 
